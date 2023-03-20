@@ -62,7 +62,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
   };*/
 
   render() {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition } = this.state;
     return (
       <div className="hexboard-container">
         <div className="hexboard">
