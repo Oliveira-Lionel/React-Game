@@ -51,7 +51,6 @@
 
 .hexagon {
   transform: rotate(30deg);
-  color: #F58900;
   display: flex;
   position: relative;
 }
