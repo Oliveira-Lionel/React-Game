@@ -8,11 +8,17 @@ interface HexBoardState {
   figurePositionsBlue: Array<{ row: number, col: number }>;
   figurePositionsRed: Array<{ row: number, col: number }>;
   selectedFigurePosition: { row: number; col: number } | null;
+  selectedFigurePosition2: { row: number; col: number } | null;
+  selectedFigurePosition3: { row: number; col: number } | null;
 }
 
+/* The actually HexagonBoard of the possible fields */
 const boardRows: number[] = [5, 6, 7, 8, 9, 8, 7, 6, 5];
 
+var turnBlue = true;
+
 class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
+  /* Constructor, which places the initial figures in their correct position */
   constructor(props: HexBoardProps) {
     super(props);
 
@@ -52,36 +58,241 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       figurePositionsBlue: figurePositionsBlue,
       figurePositionsRed: figurePositionsRed,
       selectedFigurePosition: null,
+      selectedFigurePosition2: null,
+      selectedFigurePosition3: null,
     };
   }
 
-  /*handleHexClick = (row: number, col: number) => {
-    this.setState({
-      figurePositions: [row, col],
-    });
-  };*/
+  /* Click Events */
+  handleHexClick = (row: number, col: number) => {
+    const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition, selectedFigurePosition2, selectedFigurePosition3 } = this.state;
+
+    /* Checks if the clicked Hexagon Field is the same has one of the already selected Figures */
+    const selectionMatchesClicked = (selectedFigurePosition: { row: number; col: number } | null) => {
+      return selectedFigurePosition && selectedFigurePosition.row === row && selectedFigurePosition.col === col;
+    };
+
+    /* For Blue's turn */
+    if(turnBlue) {
+      // If a figure is already selected
+      // Remove Clicked selectedFigurePosition
+      if (selectionMatchesClicked(selectedFigurePosition) || selectionMatchesClicked(selectedFigurePosition2) || selectionMatchesClicked(selectedFigurePosition3)) {
+        if(selectionMatchesClicked(selectedFigurePosition3)) {
+          this.setState({ 
+            selectedFigurePosition3: null,
+          });
+        } else if(selectionMatchesClicked(selectedFigurePosition2) && !selectedFigurePosition3) {
+          this.setState({ 
+            selectedFigurePosition2: null,
+          });
+        } else if(selectionMatchesClicked(selectedFigurePosition2) && selectedFigurePosition3) {
+          this.setState({ 
+            selectedFigurePosition2: selectedFigurePosition3,
+            selectedFigurePosition3: null,
+          });
+        } else if(selectionMatchesClicked(selectedFigurePosition) && !selectedFigurePosition2 && !selectedFigurePosition3) {
+          this.setState({ 
+            selectedFigurePosition: null,
+          });
+        } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && !selectedFigurePosition3) {
+          this.setState({ 
+            selectedFigurePosition: selectedFigurePosition2,
+            selectedFigurePosition2: null,
+          });
+        } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && selectedFigurePosition3) {
+          this.setState({ 
+            selectedFigurePosition: selectedFigurePosition2,
+            selectedFigurePosition2: selectedFigurePosition3,
+            selectedFigurePosition3: null,
+          });
+        }
+      }
+      /* This whole if condition checks if the move can be made, and fulfills it in case it works */
+      /* Needs Update */
+      else if (selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+          const isPositionTaken = figurePositionsBlue.some(pos => pos.row === row && pos.col === col)
+            || figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+
+          if (!isPositionTaken) {
+            // Find the figure's current position and remove it from the figurePositions array
+            let newFigurePositionsBlue = figurePositionsBlue;
+            let newFigurePositionsRed = figurePositionsRed;
+            if (newFigurePositionsBlue.some(pos => pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col)) {
+              newFigurePositionsBlue = newFigurePositionsBlue.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
+            }
+
+            // Add the figure to the clicked position
+            newFigurePositionsBlue.push({ row: row, col: col });
+
+            // Update the state
+            this.setState({
+              figurePositionsBlue: newFigurePositionsBlue,
+              figurePositionsRed: newFigurePositionsRed,
+              selectedFigurePosition: null,
+            });
+
+            turnBlue = false;
+        }
+      } else {
+        /* Needs Update */
+        const clickedPositionBlue = figurePositionsBlue.find(pos => pos.row === row && pos.col === col);
+
+        if(clickedPositionBlue) {
+
+        }
+
+
+
+        /* If Adjacent of already selected Figure is clicked, it is also selected */
+        if( selectedFigurePosition && !this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+          if (clickedPositionBlue) {
+            this.setState({ 
+              selectedFigurePosition2: clickedPositionBlue,
+            });
+          }
+        }
+        // If no figure is currently selected, select the clicked position if it contains a figure
+        else {
+          if (clickedPositionBlue) {
+            this.setState({ 
+              selectedFigurePosition: clickedPositionBlue,
+            });
+          }
+        }
+      }
+    } 
+    /* For Red's turn */
+    else {
+      // If a figure is already selected
+      if (selectedFigurePosition && selectedFigurePosition.row === row && selectedFigurePosition.col === col) {
+        this.setState({ 
+          selectedFigurePosition: null,
+        });
+      }
+      else if (selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+        const isPositionTaken = figurePositionsBlue.some(pos => pos.row === row && pos.col === col)
+          || figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+
+        if (!isPositionTaken) {
+          // Find the figure's current position and remove it from the figurePositions array
+          let newFigurePositionsBlue = figurePositionsBlue;
+          let newFigurePositionsRed = figurePositionsRed;
+          if (newFigurePositionsRed.some(pos => pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col)) {
+            newFigurePositionsRed = newFigurePositionsRed.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
+          }
+
+          // Add the figure to the clicked position
+          newFigurePositionsRed.push({ row: row, col: col });
+
+          // Update the state
+          this.setState({
+            figurePositionsBlue: newFigurePositionsBlue,
+            figurePositionsRed: newFigurePositionsRed,
+            selectedFigurePosition: null,
+          });
+
+          turnBlue = true;
+        }
+      }
+      // If no figure is currently selected, select the clicked position if it contains a figure
+      else {
+        const clickedPositionRed = figurePositionsRed.find(pos => pos.row === row && pos.col === col);
+
+        if (clickedPositionRed) {
+          this.setState({ selectedFigurePosition: clickedPositionRed });
+        }
+      }
+    }
+  };
+
+  /* Checks if the new position (row1 & col1) is adjacent with the previous selected figure's position (row2 & col2) */
+  isAdjacent = (row1: number, col1: number, row2: number, col2: number) => {
+    var adjacent = false;
+    if(row2 <= 3) {
+      if(Math.abs(row1 - row2) <= 1 && Math.abs(col1 - col2) <= 1) {
+        adjacent = true;
+        if(Math.abs(row1 - row2) === 1 && Math.abs(col1 - col2) === 1) {
+          if(row2 - row1 !== col2 - col1)
+            adjacent = false;
+        }
+      }
+    }
+    else if(row2 === 4) {
+      if(Math.abs(row1 - row2) <= 1 && Math.abs(col1 - col2) <= 1) {
+        adjacent = true;
+        if(Math.abs(row1 - row2) === 1 && Math.abs(col1 - col2) === 1) {
+          if((col2 - col1) === -1)
+            adjacent = false;
+        }
+      }
+    } else {
+      if(Math.abs(row1 - row2) <= 1 && Math.abs(col1 - col2) <= 1) {
+        adjacent = true;
+        if(Math.abs(row1 - row2) === 1 && Math.abs(col1 - col2) === 1) {
+          if(row2 - row1 === col2 - col1) {
+            adjacent = false;
+          }
+        }
+      }
+    }
+    return (
+      adjacent
+    );
+  };
 
   render() {
-    const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition } = this.state;
+    const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition, selectedFigurePosition2, selectedFigurePosition3 } = this.state;
     return (
       <div className="hexboard-container">
         <div className="hexboard">
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
-              const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === i && pos.col === j);/*figurePosition && figurePosition[0] === i && figurePosition[1] === j;*/
+              /*  */
+              const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === i && pos.col === j);
               const isFigureAndRed = figurePositionsRed.some(pos => pos.row === i && pos.col === j);
+              const isFigureAndSelected = selectedFigurePosition?.row === i && selectedFigurePosition?.col === j;
+              const isFigureAndSelected2 = selectedFigurePosition2?.row === i && selectedFigurePosition2?.col === j;
+              const isFigureAndSelected3 = selectedFigurePosition3?.row === i && selectedFigurePosition3?.col === j;
+
+              /* Shows the user, which moves he can do after having clicked on a Figure */
+              const possibleMoves: {row: number, col: number}[] = [];
+
+              if(selectedFigurePosition) {
+                for (let i = 0; i < boardRows.length; i++) {
+                  for (let j = 0; j < boardRows[i]; j++) {
+                    if(this.isAdjacent(selectedFigurePosition?.row, selectedFigurePosition?.col, i, j) && !isFigureAndBlue && !isFigureAndRed)
+                      possibleMoves.push({row: i, col: j});
+                  }
+                }
+              }
+
+              const isPossibleMoves = possibleMoves.some(pos => pos.row === i && pos.col === j);
+              const isSelected = this.state.selectedFigurePosition && this.state.selectedFigurePosition.row === i && this.state.selectedFigurePosition.col === j;
               return (
                 <div
                   key={`${i}-${j}`}
-                  className="hexagon-wrapper"
+                  className={`hexagon-wrapper${isSelected ? ' selected' : ''}`}//className="hexagon-wrapper"
                   /*onClick={() => this.handleHexClick(i, j)}*/
+                  onClick={() => this.handleHexClick(i, j)}
                 >
-                  <HexagonIcon className="hexagon" style={{ fontSize: "120px" }} id={`hex-${i}-${j}`} />
+                  <HexagonIcon className="hexagon" style={{ fontSize: "120px", color: "#F58900" }} /*id={`hex-${i}-${j}`}*/ />
                   {isFigureAndBlue && (
                     <div className="circle" style={{ backgroundColor: "blue" }} />
                   )}
                   {isFigureAndRed && (
                     <div className="circle" style={{ backgroundColor: "red" }} />
+                  )}
+                  {isFigureAndSelected && (
+                    <div className="circle" style={{ backgroundColor: "green" }} />
+                  )}
+                  {isFigureAndSelected2 && (
+                    <div className="circle" style={{ backgroundColor: "rose" }} />
+                  )}
+                  {isFigureAndSelected3 && (
+                    <div className="circle" style={{ backgroundColor: "violet" }} />
+                  )}
+                  {isPossibleMoves && (
+                    <div className="circle" style={{ backgroundColor: "gray" }} />
                   )}
                 </div>
               );//<HexagonIcon className="hexagon" style={{ color: hexagonColor }} />
