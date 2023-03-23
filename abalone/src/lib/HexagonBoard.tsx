@@ -109,7 +109,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       }
       /* This whole if condition checks if the move can be made, and fulfills it in case it works */
       /* Needs Update */
-      else if (selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+      else if (selectedFigurePosition && this.checkPossibleMoves(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
           const isPositionTaken = figurePositionsBlue.some(pos => pos.row === row && pos.col === col)
             || figurePositionsRed.some(pos => pos.row === row && pos.col === col);
 
@@ -129,6 +129,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               figurePositionsBlue: newFigurePositionsBlue,
               figurePositionsRed: newFigurePositionsRed,
               selectedFigurePosition: null,
+              selectedFigurePosition2: null,
             });
 
             turnBlue = false;
@@ -138,22 +139,16 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         const clickedPositionBlue = figurePositionsBlue.find(pos => pos.row === row && pos.col === col);
 
         if(clickedPositionBlue) {
-
-        }
-
-
-
-        /* If Adjacent of already selected Figure is clicked, it is also selected */
-        if( selectedFigurePosition && !this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
-          if (clickedPositionBlue) {
+          if(selectedFigurePosition && selectedFigurePosition2 && this.isThirdSelection(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
+            this.setState({ 
+              selectedFigurePosition3: clickedPositionBlue,
+            });
+          }
+          else if(selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
             this.setState({ 
               selectedFigurePosition2: clickedPositionBlue,
             });
-          }
-        }
-        // If no figure is currently selected, select the clicked position if it contains a figure
-        else {
-          if (clickedPositionBlue) {
+          } else {
             this.setState({ 
               selectedFigurePosition: clickedPositionBlue,
             });
@@ -162,6 +157,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       }
     } 
     /* For Red's turn */
+    /* Needs Update (after finishing blue's turn) */
     else {
       // If a figure is already selected
       if (selectedFigurePosition && selectedFigurePosition.row === row && selectedFigurePosition.col === col) {
@@ -240,6 +236,49 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     );
   };
 
+  isThirdSelection(row: number, col: number, sRow1: number, sCol1: number, sRow2: number, sCol2: number) {
+    var possibleSelection = false;
+
+
+
+    return possibleSelection;
+  }
+
+  calculatePossibleMoves(row1: number, col1: number, row2: number, col2: number): {row: number, col: number}[] {
+    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const possibleMoves: {row: number, col: number}[] = [];
+
+    const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === row1 && pos.col === col1);
+    const isFigureAndRed = figurePositionsRed.some(pos => pos.row === row1 && pos.col === col1);
+  
+    if (row2) {
+      for (let i = 0; i < boardRows.length; i++) {
+        for (let j = 0; j < boardRows[i]; j++) {
+          if (this.isAdjacent(row2, col2, i, j) && !isFigureAndBlue && !isFigureAndRed) {
+            possibleMoves.push({ row: i, col: j });
+          }
+        }
+      }
+    }
+  
+    return possibleMoves;
+  }
+
+  checkPossibleMoves(row1: number, col1: number, row2: number, col2: number) {
+    var possibleMoves: {row: number, col: number}[] = [];
+
+    possibleMoves = this.calculatePossibleMoves(row1, col1, row2, col2);
+
+    var checkMoves = false;
+
+    for (let i = 0; i < possibleMoves.length; i++) {
+      if(possibleMoves[i].row === row1 && possibleMoves[i].col === col1) {
+        checkMoves = true;
+      }
+    }
+    return checkMoves;
+  }
+
   render() {
     const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition, selectedFigurePosition2, selectedFigurePosition3 } = this.state;
     return (
@@ -255,15 +294,18 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               const isFigureAndSelected3 = selectedFigurePosition3?.row === i && selectedFigurePosition3?.col === j;
 
               /* Shows the user, which moves he can do after having clicked on a Figure */
-              const possibleMoves: {row: number, col: number}[] = [];
+              var possibleMoves: {row: number, col: number}[] = [];
 
-              if(selectedFigurePosition) {
+              /*if(selectedFigurePosition) {
                 for (let i = 0; i < boardRows.length; i++) {
                   for (let j = 0; j < boardRows[i]; j++) {
                     if(this.isAdjacent(selectedFigurePosition?.row, selectedFigurePosition?.col, i, j) && !isFigureAndBlue && !isFigureAndRed)
                       possibleMoves.push({row: i, col: j});
                   }
                 }
+              }*/
+              if(selectedFigurePosition) {
+                possibleMoves = this.calculatePossibleMoves(i, j, selectedFigurePosition.row, selectedFigurePosition.col);
               }
 
               const isPossibleMoves = possibleMoves.some(pos => pos.row === i && pos.col === j);
@@ -286,7 +328,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                     <div className="circle" style={{ backgroundColor: "green" }} />
                   )}
                   {isFigureAndSelected2 && (
-                    <div className="circle" style={{ backgroundColor: "rose" }} />
+                    <div className="circle" style={{ backgroundColor: "green" }} />
                   )}
                   {isFigureAndSelected3 && (
                     <div className="circle" style={{ backgroundColor: "violet" }} />
