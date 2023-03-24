@@ -12,13 +12,13 @@ interface HexBoardState {
   selectedFigurePosition3: { row: number; col: number } | null;
 }
 
-/* The actually HexagonBoard of the possible fields */
+/* The actually HexagonBoard of the possible Fields */
 const boardRows: number[] = [5, 6, 7, 8, 9, 8, 7, 6, 5];
 
 var turnBlue = true;
 
 class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
-  /* Constructor, which places the initial figures in their correct position */
+  /* Constructor, which places the initial Figures in their correct Position */
   constructor(props: HexBoardProps) {
     super(props);
 
@@ -28,7 +28,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     var col = 1;
     var max_col = 6;
 
-    /* Indicate the correct positions for the figures */
+    /* Indicate the correct Positions for the Figures */
     for (let row = 1; row < 10; row++) {
       while(col < max_col) {
         if(row === 8 || row === 9 || (row === 7 && (5 <= col && col <= 7))) {
@@ -45,7 +45,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       col = 0;
     }
 
-    /* Insert figures to the correct positions */
+    /* Insert Figures to the correct Positions */
     this.state = {
       figurePositionsBlue: figurePositionsBlue,
       figurePositionsRed: figurePositionsRed,
@@ -57,226 +57,170 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Click Events */
   handleHexClick = (row: number, col: number) => {
-    const { figurePositionsBlue, figurePositionsRed, selectedFigurePosition, selectedFigurePosition2, selectedFigurePosition3 } = this.state;
+    const { figurePositionsBlue, figurePositionsRed } = this.state;
 
-    /* Change Turn of Players */
-    /*if(turnBlue) {
+    /* Verifies which Player is doing a Click Event */
+    if(turnBlue) {
       this.clickEventsBothPlayers(row, col, figurePositionsBlue);
-      turnBlue = false;
     } else {
       this.clickEventsBothPlayers(row, col, figurePositionsRed);
-      turnBlue = true;
-    }*/
+    }
+  };
+
+  /* All the Click Events depending on the situation (For TurnBlue and TurnRed) */
+  clickEventsBothPlayers(row: number, col: number, figurePositions: Array<{ row: number, col: number }>) {
+    const { selectedFigurePosition, selectedFigurePosition2, selectedFigurePosition3 } = this.state;
 
     /* Checks if the clicked Hexagon Field is the same has one of the already selected Figures */
     const selectionMatchesClicked = (selectedFigurePosition: { row: number; col: number } | null) => {
       return selectedFigurePosition && selectedFigurePosition.row === row && selectedFigurePosition.col === col;
     };
 
-    /* For Blue's turn */
-    if(turnBlue) {
-      // If a figure is already selected
-      // Remove Clicked selectedFigurePosition
-      /* Optimize it */
-      if (selectionMatchesClicked(selectedFigurePosition) || selectionMatchesClicked(selectedFigurePosition2) || selectionMatchesClicked(selectedFigurePosition3)) {
-        if(selectionMatchesClicked(selectedFigurePosition3)) {
-          this.setState({ 
-            selectedFigurePosition3: null,
-          });
-        } else if(selectionMatchesClicked(selectedFigurePosition2) && !selectedFigurePosition3) {
-          this.setState({ 
-            selectedFigurePosition2: null,
-          });
-        } else if(selectionMatchesClicked(selectedFigurePosition2) && selectedFigurePosition3) {
-          this.setState({ 
-            selectedFigurePosition2: null,
-            selectedFigurePosition3: null,
-          });
-        } else if(selectionMatchesClicked(selectedFigurePosition) && !selectedFigurePosition2 && !selectedFigurePosition3) {
-          this.setState({ 
-            selectedFigurePosition: null,
-          });
-        } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && !selectedFigurePosition3) {
-          this.setState({ 
-            selectedFigurePosition: selectedFigurePosition2,
-            selectedFigurePosition2: null,
-          });
-        } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && selectedFigurePosition3) {
-          this.setState({ 
-            selectedFigurePosition: selectedFigurePosition2,
-            selectedFigurePosition2: selectedFigurePosition3,
-            selectedFigurePosition3: null,
-          });
-        }
-      }
-      /* Checks if the move with 3 figures can be made, and fulfills it in case it works */
-      else if(selectedFigurePosition && selectedFigurePosition2 && selectedFigurePosition3 && this.checkPossibleMovesThreeFigures(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col, selectedFigurePosition3.row, selectedFigurePosition3.col)) {
-
-      /* Checks if the move with 2 figure can be made, and fulfills it in case it works */
-      } else if(selectedFigurePosition && selectedFigurePosition2 && this.checkPossibleMovesTwoFigures(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
-
-      /* Checks if the move with 1 figure can be made, and fulfills it in case it works */
-      } else if(selectedFigurePosition && this.checkPossibleMoves(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
-        /* New List of Blue and Red Figures' Positions */
-        let newFigurePositionsBlue = figurePositionsBlue;
-        let newFigurePositionsRed = figurePositionsRed;
-
-        if(turnBlue) {
-          /* Remove all Figures, which matches with the selected ones */
-          newFigurePositionsBlue = newFigurePositionsBlue.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
-          
-          /* Add the figure to the clicked position */
-          newFigurePositionsBlue.push({ row: row, col: col });
-
-          /* Next turn: Red */
-          turnBlue = false;
-        } else {
-          /* Remove all Figures, which doesn't match with the selected ones */
-          newFigurePositionsRed = newFigurePositionsRed.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
-
-          /* Add the figure to the clicked position */
-          newFigurePositionsRed.push({ row: row, col: col });
-
-          /* Next turn: Blue */
-          turnBlue = true;
-        }
-        // Update the state
-        this.setState({
-          figurePositionsBlue: newFigurePositionsBlue,
-          figurePositionsRed: newFigurePositionsRed,
-          selectedFigurePosition: null,
+    // If a Digure is already selected
+    // Remove Clicked selectedFigurePosition
+    if (selectionMatchesClicked(selectedFigurePosition) || selectionMatchesClicked(selectedFigurePosition2) || selectionMatchesClicked(selectedFigurePosition3)) {
+      if(selectionMatchesClicked(selectedFigurePosition3)) {
+        this.setState({ 
+          selectedFigurePosition3: null,
+        });
+      } else if(selectionMatchesClicked(selectedFigurePosition2) && !selectedFigurePosition3) {
+        this.setState({ 
+          selectedFigurePosition2: null,
+        });
+      } else if(selectionMatchesClicked(selectedFigurePosition2) && selectedFigurePosition3) {
+        this.setState({ 
           selectedFigurePosition2: null,
           selectedFigurePosition3: null,
         });
+      } else if(selectionMatchesClicked(selectedFigurePosition) && !selectedFigurePosition2 && !selectedFigurePosition3) {
+        this.setState({ 
+          selectedFigurePosition: null,
+        });
+      } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && !selectedFigurePosition3) {
+        this.setState({ 
+          selectedFigurePosition: selectedFigurePosition2,
+          selectedFigurePosition2: null,
+        });
+      } else if(selectionMatchesClicked(selectedFigurePosition) && selectedFigurePosition2 && selectedFigurePosition3) {
+        this.setState({ 
+          selectedFigurePosition: selectedFigurePosition2,
+          selectedFigurePosition2: selectedFigurePosition3,
+          selectedFigurePosition3: null,
+        });
+      }
+    } else
+    /* Checks if the move with 3 Figures can be made, and fulfills it in case it works */
+    if(selectedFigurePosition && selectedFigurePosition2 && selectedFigurePosition3 && this.checkPossibleMovesThreeFigures(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col, selectedFigurePosition3.row, selectedFigurePosition3.col)) {
+
+      /* Checks if the move with 2 Figure can be made, and fulfills it in case it works */
+      } else if(selectedFigurePosition && selectedFigurePosition2 && this.checkPossibleMovesTwoFigures(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
+
+      /* Checks if the move with 1 Figure can be made, and fulfills it in case it works */
+      } else if(selectedFigurePosition && this.checkPossibleMoves(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+
+        /* New list of Blue and Red Figures' Positions */
+        let newFigurePositions = figurePositions;
+
+        /* Remove all Figures, which matches with the selected ones */
+        newFigurePositions = newFigurePositions.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
+
+        /* Add the Figure to the clicked Position */
+        newFigurePositions.push({ row: row, col: col });
+
+        if(turnBlue) {
+          /* Next Turn: Red */
+          turnBlue = false;
+          
+          /* Updates the state */
+          this.setState({
+            figurePositionsBlue: newFigurePositions,
+            selectedFigurePosition: null,
+            selectedFigurePosition2: null,
+            selectedFigurePosition3: null,
+          });
+        } else {
+          /* Next Turn: Blue */
+          turnBlue = true;
+        
+          /* Updates the state */
+          this.setState({
+            figurePositionsRed: newFigurePositions,
+            selectedFigurePosition: null,
+            selectedFigurePosition2: null,
+            selectedFigurePosition3: null,
+          });
+        }
       } else {
         /* Select a Figure that should be moved (selectedFigurePosition) */
         /* Optimize it */
-        const clickedPositionBlue = figurePositionsBlue.find(pos => pos.row === row && pos.col === col);
+        const clickedPosition = figurePositions.find(pos => pos.row === row && pos.col === col);
 
-        if(clickedPositionBlue) {
+        if(clickedPosition) {
           if(selectedFigurePosition && selectedFigurePosition2 && selectedFigurePosition3 && this.isThirdSelection(row, col, selectedFigurePosition2.row, selectedFigurePosition2.col, selectedFigurePosition3.row, selectedFigurePosition3.col)) {
             this.setState({ 
               selectedFigurePosition: selectedFigurePosition2,
               selectedFigurePosition2: selectedFigurePosition3,
-              selectedFigurePosition3: clickedPositionBlue,
+              selectedFigurePosition3: clickedPosition,
             });
           } else if(selectedFigurePosition && selectedFigurePosition2 && this.isThirdSelection(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
             if(row > selectedFigurePosition.row) {
               this.setState({ 
                 selectedFigurePosition3: selectedFigurePosition2,
                 selectedFigurePosition2: selectedFigurePosition,
-                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition: clickedPosition,
               });
             } else if(col > selectedFigurePosition.col && row === selectedFigurePosition.row) {
               this.setState({ 
                 selectedFigurePosition3: selectedFigurePosition2,
                 selectedFigurePosition2: selectedFigurePosition,
-                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition: clickedPosition,
               });
             } else if(row > selectedFigurePosition2.row) {
               this.setState({ 
                 selectedFigurePosition3: selectedFigurePosition2,
-                selectedFigurePosition2: clickedPositionBlue,
+                selectedFigurePosition2: clickedPosition,
               });
             } else if(col > selectedFigurePosition2.col && row === selectedFigurePosition2.row) {
               this.setState({ 
                 selectedFigurePosition3: selectedFigurePosition2,
-                selectedFigurePosition2: clickedPositionBlue,
+                selectedFigurePosition2: clickedPosition,
               });
             } else {
               this.setState({ 
-                selectedFigurePosition3: clickedPositionBlue,
+                selectedFigurePosition3: clickedPosition,
               });
             }
           } else if(selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
             if(row > selectedFigurePosition.row) {
               this.setState({ 
                 selectedFigurePosition2: selectedFigurePosition,
-                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition: clickedPosition,
                 selectedFigurePosition3: null,
               });
             } else if(col > selectedFigurePosition.col) {
               this.setState({ 
                 selectedFigurePosition2: selectedFigurePosition,
-                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition: clickedPosition,
                 selectedFigurePosition3: null,
               });
             } else {
               this.setState({ 
-                selectedFigurePosition2: clickedPositionBlue,
+                selectedFigurePosition2: clickedPosition,
                 selectedFigurePosition3: null,
               });
             }
           } else {
             this.setState({ 
-              selectedFigurePosition: clickedPositionBlue,
+              selectedFigurePosition: clickedPosition,
               selectedFigurePosition2: null,
               selectedFigurePosition3: null,
             });
           }
         }
       }
-    }
-
-
-
-
-    /* For Red's turn */
-    /* Needs Update (after finishing blue's turn) */
-    else {
-      // If a figure is already selected
-      if (selectedFigurePosition && selectedFigurePosition.row === row && selectedFigurePosition.col === col) {
-        this.setState({ 
-          selectedFigurePosition: null,
-        });
-      }
-      else if (selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
-        const isPositionTaken = figurePositionsBlue.some(pos => pos.row === row && pos.col === col)
-          || figurePositionsRed.some(pos => pos.row === row && pos.col === col);
-
-        if (!isPositionTaken) {
-          // Find the figure's current position and remove it from the figurePositions array
-          let newFigurePositionsBlue = figurePositionsBlue;
-          let newFigurePositionsRed = figurePositionsRed;
-          if (newFigurePositionsRed.some(pos => pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col)) {
-            newFigurePositionsRed = newFigurePositionsRed.filter(pos => !(pos.row === selectedFigurePosition.row && pos.col === selectedFigurePosition.col));
-          }
-
-          // Add the figure to the clicked position
-          newFigurePositionsRed.push({ row: row, col: col });
-
-          // Update the state
-          this.setState({
-            figurePositionsBlue: newFigurePositionsBlue,
-            figurePositionsRed: newFigurePositionsRed,
-            selectedFigurePosition: null,
-          });
-
-          turnBlue = true;
-        }
-      }
-      // If no figure is currently selected, select the clicked position if it contains a figure
-      else {
-        const clickedPositionRed = figurePositionsRed.find(pos => pos.row === row && pos.col === col);
-
-        if (clickedPositionRed) {
-          this.setState({ selectedFigurePosition: clickedPositionRed });
-        }
-      }
-    }
-  };
-
-  /* All the click events depending on the situation (For TurnBlue and TurnRed) */
-  clickEventsBothPlayers(row: number, col: number, figurePositions: Array<{ row: number, col: number }>) {
-    
   }
 
-
-
-
-
-
-  /* Checks if the new position (row1 & col1) is adjacent with the previous selected figure's position (row2 & col2) */
+  /* Checks if the new Position (row1 & col1) is adjacent with the previous selected Figure's Position (row2 & col2) */
   isAdjacent = (row: number, col: number, sRow: number, sCol: number) => {
     var adjacent = false;
 
@@ -294,17 +238,17 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     var possibleSelection = false;
 
     if(sRow === sRow2 && sCol-1 === sCol2) {
-      /* Selection of a third figure, which is horizontal ( - ) */
+      /* Selection of a third Figure, which is horizontal ( - ) */
       if((sRow === row && sCol+1 === col) || (sRow2 === row && sCol2-1 === col)) {
         possibleSelection = true;
       }
     } else if(sRow-1 === sRow2 && sCol-1 === sCol2) {
-      /* Selection of a third figure, which is diagonal from bottom right to top left ( \ ) */
+      /* Selection of a third Figure, which is diagonal from bottom right to top left ( \ ) */
       if((sRow+1 === row && sCol+1 === col) || (sRow2-1 === row && sCol2-1 === col)) {
         possibleSelection = true;
       }
     } else if(sRow-1 === sRow2 && sCol === sCol2) {
-      /* Selection of a third figure, which is diagonal from bottom left to top right ( / ) */
+      /* Selection of a third Figure, which is diagonal from bottom left to top right ( / ) */
       if((sRow+1 === row && sCol === col) || (sRow2-1 === row && sCol2 === col)) {
         possibleSelection = true;
       }
@@ -313,7 +257,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     return possibleSelection;
   }
 
-  /* Returns a list of all the possible moves that a single figure can do */
+  /* Returns a list of all the possible moves that a single Figure can do */
   calculatePossibleMoves(row: number, col: number, sRow: number, sCol: number): {row: number, col: number}[] {
     const { figurePositionsBlue, figurePositionsRed } = this.state;
     const possibleMoves: {row: number, col: number}[] = [];
@@ -438,7 +382,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
 
-              /* Guarantee that the positions of each Hexagon Field is convenient to work with it */
+              /* Guarantees that the Positions of each Hexagon Field is convenient to work with it */
               let adjustedI = i+1;
               let adjustedJ = j+1;
 
@@ -452,7 +396,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                 possibleMoves = this.calculatePossibleMoves(adjustedI, adjustedJ, selectedFigurePosition.row, selectedFigurePosition.col);
               }
 
-              /* Checks the position of each element */
+              /* Checks the Position of each element */
               const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
               const isFigureAndRed = figurePositionsRed.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
               const isFigureAndSelected = selectedFigurePosition?.row === adjustedI && selectedFigurePosition?.col === adjustedJ;
@@ -467,7 +411,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                   className="hexagon-wrapper"
                   onClick={() => this.handleHexClick(adjustedI, adjustedJ)}
                 >
-                  <HexagonIcon className="hexagon" style={{ fontSize: "120px", color: "#F58900" }} /*id={`hex-${i}-${j}`}*/ />
+                  <HexagonIcon className="hexagon" style={{ fontSize: "120px", color: "#F58900" }} />
                   {isFigureAndBlue && (
                     <div className="circle" style={{ backgroundColor: "blue" }} />
                   )}
