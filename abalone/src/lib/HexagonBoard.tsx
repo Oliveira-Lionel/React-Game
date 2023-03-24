@@ -85,7 +85,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           });
         } else if(selectionMatchesClicked(selectedFigurePosition2) && selectedFigurePosition3) {
           this.setState({ 
-            selectedFigurePosition2: selectedFigurePosition3,
+            selectedFigurePosition2: null,
             selectedFigurePosition3: null,
           });
         } else if(selectionMatchesClicked(selectedFigurePosition) && !selectedFigurePosition2 && !selectedFigurePosition3) {
@@ -137,18 +137,64 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         const clickedPositionBlue = figurePositionsBlue.find(pos => pos.row === row && pos.col === col);
 
         if(clickedPositionBlue) {
-          if(selectedFigurePosition && selectedFigurePosition2 && this.isThirdSelection(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
+          if(selectedFigurePosition && selectedFigurePosition2 && selectedFigurePosition3 && this.isThirdSelection(row, col, selectedFigurePosition2.row, selectedFigurePosition2.col, selectedFigurePosition3.row, selectedFigurePosition3.col)) {
             this.setState({ 
+              selectedFigurePosition: selectedFigurePosition2,
+              selectedFigurePosition2: selectedFigurePosition3,
               selectedFigurePosition3: clickedPositionBlue,
             });
-          }
-          else if(selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
-            this.setState({ 
-              selectedFigurePosition2: clickedPositionBlue,
-            });
+          } else if(selectedFigurePosition && selectedFigurePosition2 && this.isThirdSelection(row, col, selectedFigurePosition.row, selectedFigurePosition.col, selectedFigurePosition2.row, selectedFigurePosition2.col)) {
+            if(row > selectedFigurePosition.row) {
+              this.setState({ 
+                selectedFigurePosition3: selectedFigurePosition2,
+                selectedFigurePosition2: selectedFigurePosition,
+                selectedFigurePosition: clickedPositionBlue,
+              });
+            } else if(col > selectedFigurePosition.col && row === selectedFigurePosition.row) {
+              this.setState({ 
+                selectedFigurePosition3: selectedFigurePosition2,
+                selectedFigurePosition2: selectedFigurePosition,
+                selectedFigurePosition: clickedPositionBlue,
+              });
+            } else if(row > selectedFigurePosition2.row) {
+              this.setState({ 
+                selectedFigurePosition3: selectedFigurePosition2,
+                selectedFigurePosition2: clickedPositionBlue,
+              });
+            } else if(col > selectedFigurePosition2.col && row === selectedFigurePosition2.row) {
+              this.setState({ 
+                selectedFigurePosition3: selectedFigurePosition2,
+                selectedFigurePosition2: clickedPositionBlue,
+              });
+            } else {
+              this.setState({ 
+                selectedFigurePosition3: clickedPositionBlue,
+              });
+            }
+          } else if(selectedFigurePosition && this.isAdjacent(row, col, selectedFigurePosition.row, selectedFigurePosition.col)) {
+            if(row > selectedFigurePosition.row) {
+              this.setState({ 
+                selectedFigurePosition2: selectedFigurePosition,
+                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition3: null,
+              });
+            } else if(col > selectedFigurePosition.col) {
+              this.setState({ 
+                selectedFigurePosition2: selectedFigurePosition,
+                selectedFigurePosition: clickedPositionBlue,
+                selectedFigurePosition3: null,
+              });
+            } else {
+              this.setState({ 
+                selectedFigurePosition2: clickedPositionBlue,
+                selectedFigurePosition3: null,
+              });
+            }
           } else {
             this.setState({ 
               selectedFigurePosition: clickedPositionBlue,
+              selectedFigurePosition2: null,
+              selectedFigurePosition3: null,
             });
           }
         }
@@ -342,12 +388,19 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     var possibleSelection = false;
 
     if(sRow1 === sRow2 && sCol1-1 === sCol2) {
-      /*  */
-      if((sRow1 === row && sCol1+1 === col) || (sRow1 === row && sCol2-1 === col))
+      /* Selection of a third figure, which is horizontal ( - ) */
+      if((sRow1 === row && sCol1+1 === col) || (sRow2 === row && sCol2-1 === col)) {
         possibleSelection = true;
-    } else if(sRow1-1 === sRow2 && sRow2 > 4 && sCol1+1 === sCol2) {
-      if(sRow1) {
-
+      }
+    } else if(sRow1-1 === sRow2 && sCol1-1 === sCol2) {
+      /* Selection of a third figure, which is diagonal from bottom right to top left ( \ ) */
+      if((sRow1+1 === row && sCol1+1 === col) || (sRow2-1 === row && sCol2-1 === col)) {
+        possibleSelection = true;
+      }
+    } else if(sRow1-1 === sRow2 && sCol1 === sCol2) {
+      /* Selection of a third figure, which is diagonal from bottom left to top right ( / ) */
+      if((sRow1+1 === row && sCol1 === col) || (sRow2-1 === row && sCol2 === col)) {
+        possibleSelection = true;
       }
     }
 
@@ -367,8 +420,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         if(i > 5) {
           adjustedJ = j+(i-5);
         }
-        console.log(i + ", " + adjustedJ);
-        console.log(boardRows[i-1]);
+        //console.log(i + ", " + adjustedJ);
+        //console.log(boardRows[i-1]);
         if (this.isAdjacent(row2, col2, i, adjustedJ) && !isFigureAndBlue && !isFigureAndRed) {
           possibleMoves.push({ row: i, col: adjustedJ });
         }
@@ -430,6 +483,10 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               }
 
               //console.log(adjustedI + ", " + adjustedJ);
+
+              /*console.log(selectedFigurePosition?.row + ", " + selectedFigurePosition?.col);
+              console.log(selectedFigurePosition2?.row + ", " + selectedFigurePosition2?.col);
+              console.log(selectedFigurePosition3?.row + ", " + selectedFigurePosition3?.col);*/
 
               const isPossibleMoves = possibleMoves.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
               const isSelected = this.state.selectedFigurePosition && this.state.selectedFigurePosition.row === adjustedI && this.state.selectedFigurePosition.col === adjustedJ;
