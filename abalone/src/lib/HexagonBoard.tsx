@@ -20,6 +20,8 @@ const boardRows: number[] = [5, 6, 7, 8, 9, 8, 7, 6, 5];
 
 var turnBlue = true;
 
+var collision = false;
+
 class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
   /* Constructor, which places the initial Figures in their correct Position */
   constructor(props: HexBoardProps) {
@@ -34,10 +36,10 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Indicate the correct Positions for the Figures */
     for (let row = 1; row < 10; row++) {
       while(col < max_col) {
-        if(row === 8 || row === 9 || (row === 7 && (5 <= col && col <= 7))) {
+        if((row === 8 && (4 <= col && col <= 9)) || (row === 9 && (5 <= col && col <= 9)) || (row === 7 && (5 <= col && col <= 7))) {
           figurePositionsBlue.push({row: row, col: col});
         }
-        if(row === 1 || row === 2 || (row === 3 && (3 <= col && col <= 5))) {
+        if((row === 1 && (1 <= col && col <= 5)) || (row === 2 && (1 <= col && col <= 6)) || (row === 3 && (3 <= col && col <= 5))) {
           figurePositionsRed.push({row: row, col: col});
         }
 
@@ -64,14 +66,18 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
     /* Verifies which Player is doing a Click Event */
     if(turnBlue) {
-      this.clickEventsBothPlayers(row, col, figurePositionsBlue);
+      this.clickEventsBothPlayers(row, col, figurePositionsBlue, figurePositionsRed);
+      console.log(figurePositionsBlue.length);
+      console.log(figurePositionsRed.length);
     } else {
-      this.clickEventsBothPlayers(row, col, figurePositionsRed);
+      this.clickEventsBothPlayers(row, col, figurePositionsRed, figurePositionsBlue);
+      console.log(figurePositionsBlue.length);
+      console.log(figurePositionsRed.length);
     }
   };
 
   /* All the Click Events depending on the situation (For TurnBlue and TurnRed) */
-  clickEventsBothPlayers(row: number, col: number, figurePositions: Array<{ row: number, col: number }>) {
+  clickEventsBothPlayers(row: number, col: number, figurePositions: Array<{ row: number, col: number }>, figurePositions2: Array<{ row: number, col: number }>) {
     const { selectedFigure, selectedFigure2, selectedFigure3 } = this.state;
 
     /* Checks if the clicked Hexagon Field is the same has one of the already selected Figures */
@@ -123,6 +129,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       if(this.checkPossibleMovesThreeFigures(row, col, selectedFigure.row, selectedFigure.col, selectedFigure2.row, selectedFigure2.col, selectedFigure3.row, selectedFigure3.col)) {
         /* New list of Blue and Red Figures' Positions */
         let newFigurePositions = figurePositions;
+        let newFigurePositions2 = figurePositions2;
 
         /* Remove all Figures, which matches with the selected ones */
         newFigurePositions = newFigurePositions.filter(pos => !(pos.row === selectedFigure.row && pos.col === selectedFigure.col));
@@ -136,11 +143,32 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row, col: col-1 });
             newFigurePositions.push({ row: row, col: col-2 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col+1));
+
+              //newFigurePositions2.push({ row: row, col: col+1 });
+              if(this.isInBoardRows(row, col+2))
+                newFigurePositions2.push({ row: row, col: col+2 });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row, col: col+1 });
             newFigurePositions.push({ row: row, col: col+2 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col-1));
+
+              //newFigurePositions2.push({ row: row, col: col-1 });
+              if(this.isInBoardRows(row, col-2))
+                newFigurePositions2.push({ row: row, col: col-2 });
+
+              collision = false;
+            }
           }
         /* Case, where the Selections are diagonal from bottom right to top left ( \ ) */
         } else if(selectedFigure.col-1 === selectedFigure2.col && selectedFigure.row-1 === selectedFigure2.row) {
@@ -149,11 +177,32 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row-1, col: col-1 });
             newFigurePositions.push({ row: row-2, col: col-2 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row+1 && pos.col === col+1));
+
+              //newFigurePositions2.push({ row: row+1, col: col+1 });
+              if(this.isInBoardRows(row+2, col+2))
+                newFigurePositions2.push({ row: row+2, col: col+2 });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row+1, col: col+1 });
             newFigurePositions.push({ row: row+2, col: col+2 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row-1 && pos.col === col-1));
+
+              //newFigurePositions2.push({ row: row-1, col: col-1 });
+              if(this.isInBoardRows(row-2, col-2))
+                newFigurePositions2.push({ row: row-2, col: col-2 });
+
+              collision = false;
+            }
           }
         /* Case, where the Selections are diagonal from bottom left to top right ( / ) */
         } else if(selectedFigure.col === selectedFigure2.col && selectedFigure.row-1 === selectedFigure2.row) {
@@ -162,11 +211,32 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row-1, col: col });
             newFigurePositions.push({ row: row-2, col: col });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row+1 && pos.col === col));
+
+              //newFigurePositions2.push({ row: row+1, col: col });
+              if(this.isInBoardRows(row+2, col))
+                newFigurePositions2.push({ row: row+2, col: col });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row+1, col: col });
             newFigurePositions.push({ row: row+2, col: col });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+              //newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row-1 && pos.col === col));
+
+              //newFigurePositions2.push({ row: row-1, col: col });
+              if(this.isInBoardRows(row-2, col))
+                newFigurePositions2.push({ row: row-2, col: col });
+
+              collision = false;
+            }
           }
         }
         
@@ -177,6 +247,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           /* Updates the state */
           this.setState({
             figurePositionsBlue: newFigurePositions,
+            figurePositionsRed: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -188,6 +259,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           /* Updates the state */
           this.setState({
             figurePositionsRed: newFigurePositions,
+            figurePositionsBlue: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -201,6 +273,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       if(this.checkPossibleMovesTwoFigures(row, col, selectedFigure.row, selectedFigure.col, selectedFigure2.row, selectedFigure2.col)) {
         /* New list of Blue and Red Figures' Positions */
         let newFigurePositions = figurePositions;
+        let newFigurePositions2 = figurePositions2;
 
         /* Remove all Figures, which matches with the selected ones */
         newFigurePositions = newFigurePositions.filter(pos => !(pos.row === selectedFigure.row && pos.col === selectedFigure.col));
@@ -212,10 +285,27 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row, col: col-1 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row, col+1))
+                newFigurePositions2.push({ row: row, col: col+1 });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row, col: col+1 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row, col-1))
+                newFigurePositions2.push({ row: row, col: col-1 });
+
+              collision = false;
+            }
           }
         /* Case, where the Selections are diagonal from bottom right to top left ( \ ) */
         } else if(selectedFigure.col-1 === selectedFigure2.col && selectedFigure.row-1 === selectedFigure2.row) {
@@ -223,10 +313,27 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row-1, col: col-1 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row+1, col+1))
+                newFigurePositions2.push({ row: row+1, col: col+1 });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row+1, col: col+1 });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row-1, col-1))
+                newFigurePositions2.push({ row: row-1, col: col-1 });
+
+              collision = false;
+            }
           }
         /* Case, where the Selections are diagonal from bottom left to top right ( / ) */
         } else if(selectedFigure.col === selectedFigure2.col && selectedFigure.row-1 === selectedFigure2.row) {
@@ -234,10 +341,27 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
             /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row-1, col: col });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row+1, col))
+                newFigurePositions2.push({ row: row+1, col: col });
+
+              collision = false;
+            }
           } else {
-            /* Add the Figures to the clicked and adjacent Positions */
             newFigurePositions.push({ row: row, col: col });
             newFigurePositions.push({ row: row+1, col: col });
+
+            if(collision) {
+              newFigurePositions2 = newFigurePositions2.filter(pos => !(pos.row === row && pos.col === col));
+
+              if(this.isInBoardRows(row-1, col))
+                newFigurePositions2.push({ row: row-1, col: col });
+
+              collision = false;
+            }
           }
         }
         
@@ -248,6 +372,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           /* Updates the state */
           this.setState({
             figurePositionsBlue: newFigurePositions,
+            figurePositionsRed: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -259,6 +384,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           /* Updates the state */
           this.setState({
             figurePositionsRed: newFigurePositions,
+            figurePositionsBlue: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -266,6 +392,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         }
       } else {
         this.selectionFigure(row, col, figurePositions);
+        collision = false;
       }
     /* Checks if the move with 1 Figure can be made, and fulfills it in case it works */
     } else if(selectedFigure && this.checkPossibleMoves(row, col, selectedFigure.row, selectedFigure.col)) {
@@ -405,6 +532,26 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     return possibleSelection;
   }
 
+  isInBoardRows(row: number, col: number) {
+    var isFigureIn = false;
+
+    for (let i = 1; i < boardRows.length+1; i++) {
+      for (let j = 1; j < boardRows[i-1]+1; j++) {
+        var adjustedJ = j;
+
+        if(i > 5) {
+          adjustedJ = j+(i-5);
+        }
+        
+        if (row === i && col === adjustedJ) {
+          isFigureIn = true;
+        }
+      }
+    }
+
+    return isFigureIn;
+  }
+
   /* Returns a list of all the possible moves that a single Figure can do */
   calculatePossibleMoves(row: number, col: number, sRow: number, sCol: number): {row: number, col: number}[] {
     const { figurePositionsBlue, figurePositionsRed } = this.state;
@@ -431,11 +578,12 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     return possibleMoves;
   }
 
+  
+
   /* COMMENT THIS */
   calculatePossibleMovesTwoFigures(row: number, col: number, sRow: number, sCol: number, sRow2: number, sCol2: number): {row: number, col: number}[] {
     const { figurePositionsBlue, figurePositionsRed } = this.state;
     const possibleMoves: {row: number, col: number}[] = [];
-
 
     function isFigure(row: number, col: number): boolean {
       const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
@@ -444,11 +592,37 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       return isFigureAndBlue || isFigureAndRed;
     }
 
+    function isCollision(row: number, col: number): boolean {
+      var isCollision;
+
+      if(turnBlue) {
+        isCollision = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
+      } else {
+        isCollision = figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+      }
+
+      return isCollision;
+    }
+
+    function isSpace(row: number, col: number): boolean {
+      var isSpace = false;
+
+      if(!isFigure(row, col)) {
+        isSpace = true;
+      }
+
+      return isSpace;
+    }
+
     if(sRow === sRow2 && sCol-1 === sCol2) {
-      if(!isFigure(sRow, sCol+1)) {
+      if(!isCollision(sRow, sCol+1) && isSpace(sRow, sCol+2)) {
+        possibleMoves.push({ row: sRow, col: sCol+1 });
+      } else if(!isFigure(sRow, sCol+1)) {
         possibleMoves.push({ row: sRow, col: sCol+1 });
       }
-      if(!isFigure(sRow2, sCol2-1)) {
+      if(!isCollision(sRow2, sCol2-1) && isSpace(sRow2, sCol2-2)) {
+        possibleMoves.push({ row: sRow2, col: sCol2-1 });
+      } else if(!isFigure(sRow2, sCol2-1)) {
         possibleMoves.push({ row: sRow2, col: sCol2-1 });
       }
       if(!isFigure(sRow-1, sCol) && !isFigure(sRow-1, sCol-1)) {
@@ -464,10 +638,14 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         possibleMoves.push({ row: sRow2+1, col: sCol2 });
       }
     } else if(sCol-1 === sCol2 && sRow-1 === sRow2) {
-      if(!isFigure(sRow+1, sCol+1)) {
+      if(!isCollision(sRow+1, sCol+1) && isSpace(sRow+2, sCol+2)) {
+        possibleMoves.push({ row: sRow+1, col: sCol+1 });
+      } else if(!isFigure(sRow+1, sCol+1)) {
         possibleMoves.push({ row: sRow+1, col: sCol+1 });
       }
-      if(!isFigure(sRow2-1, sCol2-1)) {
+      if(!isCollision(sRow2-1, sCol2-1) && isSpace(sRow2-2, sCol2-2)) {
+        possibleMoves.push({ row: sRow2-1, col: sCol2-1 });
+      } else if(!isFigure(sRow2-1, sCol2-1)) {
         possibleMoves.push({ row: sRow2-1, col: sCol2-1 });
       }
       if(!isFigure(sRow, sCol+1) && !isFigure(sRow-1, sCol)) {
@@ -483,10 +661,14 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         possibleMoves.push({ row: sRow2, col: sCol2-1 });
       }
     } else if(sCol === sCol2 && sRow-1 === sRow2) {
-      if(!isFigure(sRow+1, sCol)) {
+      if(!isCollision(sRow+1, sCol) && isSpace(sRow+2, sCol)) {
+        possibleMoves.push({ row: sRow+1, col: sCol });
+      } else if(!isFigure(sRow+1, sCol)) {
         possibleMoves.push({ row: sRow+1, col: sCol });
       }
-      if(!isFigure(sRow2-1, sCol2)) {
+      if(!isCollision(sRow2-1, sCol2) && isSpace(sRow2-2, sCol2)) {
+        possibleMoves.push({ row: sRow2-1, col: sCol2 });
+      } else if(!isFigure(sRow2-1, sCol2)) {
         possibleMoves.push({ row: sRow2-1, col: sCol2 });
       }
       if(!isFigure(sRow+1, sCol+1) && !isFigure(sRow, sCol+1)) {
@@ -518,11 +700,47 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       return isFigureAndBlue || isFigureAndRed;
     }
 
+    function isCollision(row: number, col: number): boolean {
+      var isCollision;
+
+      if(turnBlue) {
+        isCollision = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
+      } else {
+        isCollision = figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+      }
+
+      return isCollision;
+    }
+
+    function isSpace(row: number, col: number): boolean {
+      var isSpace = false;
+
+      if(!isFigure(row, col)) {
+        isSpace = true;
+      }
+
+      return isSpace;
+    }
+
+    /*function isDoubleSpace(row: number, col: number): boolean {
+      var isSpace = false;
+
+      if(!isFigure(row, col)) {
+        isSpace = true;
+      }
+
+      return isSpace;
+    }*/
+
     if(sRow === sRow2 && sCol-1 === sCol2 && sRow === sRow3 && sCol-2 === sCol3) {
-      if(!isFigure(sRow, sCol+1)) {
+      if(!isCollision(sRow, sCol+1) && (isSpace(sRow, sCol+2) || (isSpace(sRow, sCol+3) && !isCollision(sRow, sCol+2)))) {
+        possibleMoves.push({ row: sRow, col: sCol+1 });
+      } else if(!isFigure(sRow, sCol+1)) {
         possibleMoves.push({ row: sRow, col: sCol+1 });
       }
-      if(!isFigure(sRow3, sCol3-1)) {
+      if(!isCollision(sRow3, sCol3-1) && (isSpace(sRow3, sCol3-2) || (isSpace(sRow3, sCol3-3) && !isCollision(sRow3, sCol3-2)))) {
+        possibleMoves.push({ row: sRow3, col: sCol3-1 });
+      } else if(!isFigure(sRow3, sCol3-1)) {
         possibleMoves.push({ row: sRow3, col: sCol3-1 });
       }
       if(!isFigure(sRow-1, sCol) && !isFigure(sRow-1, sCol-1) && !isFigure(sRow-1, sCol-2)) {
@@ -538,10 +756,14 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         possibleMoves.push({ row: sRow3+1, col: sCol3 });
       }
     } else if(sCol-1 === sCol2 && sRow-1 === sRow2 && sCol-2 === sCol3 && sRow-2 === sRow3) {
-      if(!isFigure(sRow+1, sCol+1)) {
+      if(!isCollision(sRow+1, sCol+1) && (isSpace(sRow+2, sCol+2) || (isSpace(sRow+3, sCol+3) && !isCollision(sRow+2, sCol+2)))) {
+        possibleMoves.push({ row: sRow+1, col: sCol+1 });
+      } else if(!isFigure(sRow+1, sCol+1)) {
         possibleMoves.push({ row: sRow+1, col: sCol+1 });
       }
-      if(!isFigure(sRow3-1, sCol3-1)) {
+      if(!isCollision(sRow3-1, sCol3-1) && (isSpace(sRow3-2, sCol3-2) || (isSpace(sRow3-3, sCol3-3) && !isCollision(sRow3-2, sCol3-2)))) {
+        possibleMoves.push({ row: sRow3-1, col: sCol3-1 });
+      } else if(!isFigure(sRow3-1, sCol3-1)) {
         possibleMoves.push({ row: sRow3-1, col: sCol3-1 });
       }
       if(!isFigure(sRow, sCol+1) && !isFigure(sRow-1, sCol) && !isFigure(sRow-2, sCol-1)) {
@@ -557,10 +779,14 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         possibleMoves.push({ row: sRow3, col: sCol3-1 });
       }
     } else if(sCol === sCol2 && sRow-1 === sRow2 && sCol === sCol3 && sRow-2 === sRow3) {
-      if(!isFigure(sRow+1, sCol)) {
+      if(!isCollision(sRow+1, sCol) && (isSpace(sRow+2, sCol) || (isSpace(sRow+3, sCol) && !isCollision(sRow+2, sCol)))) {
+        possibleMoves.push({ row: sRow+1, col: sCol });
+      } else if(!isFigure(sRow+1, sCol)) {
         possibleMoves.push({ row: sRow+1, col: sCol });
       }
-      if(!isFigure(sRow3-1, sCol3)) {
+      if(!isCollision(sRow3-1, sCol3) && (isSpace(sRow3-2, sCol3) || (isSpace(sRow3-3, sCol3) && !isCollision(sRow3-2, sCol3)))) {
+        possibleMoves.push({ row: sRow3-1, col: sCol3 });
+      } else if(!isFigure(sRow3-1, sCol3)) {
         possibleMoves.push({ row: sRow3-1, col: sCol3 });
       }
       if(!isFigure(sRow+1, sCol+1) && !isFigure(sRow, sCol+1) && !isFigure(sRow-1, sCol+1)) {
@@ -595,6 +821,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Returns a true false if possible moves are available for a specific case (For moving 2 Figures) */
   checkPossibleMovesTwoFigures(row: number, col: number, sRow: number, sCol: number, sRow2: number, sCol2: number) {
+    const { figurePositionsBlue, figurePositionsRed } = this.state;
     var possibleMoves: {row: number, col: number}[] = [];
     var checkMoves = false;
 
@@ -603,11 +830,17 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Checks if the clicked Position is equal to the possibleMoves Position */
     checkMoves = possibleMoves.some(pos => pos.row === row && pos.col === col);
 
+    if(figurePositionsBlue.some(pos => pos.row === row && pos.col === col) || figurePositionsRed.some(pos => pos.row === row && pos.col === col)) {
+      collision = true;
+      console.log("fish");
+    }
+
     return checkMoves;
   }
 
   /* Returns a true false if possible moves are available for a specific case (For moving 3 Figures) */
   checkPossibleMovesThreeFigures(row: number, col: number, sRow: number, sCol: number, sRow2: number, sCol2: number, sRow3: number, sCol3: number) {
+    const { figurePositionsBlue, figurePositionsRed } = this.state;
     var possibleMoves: {row: number, col: number}[] = [];
     var checkMoves = false;
 
@@ -615,6 +848,11 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
     /* Checks if the clicked Position is equal to the possibleMoves Position */
     checkMoves = possibleMoves.some(pos => pos.row === row && pos.col === col);
+
+    if(figurePositionsBlue.some(pos => pos.row === row && pos.col === col) || figurePositionsRed.some(pos => pos.row === row && pos.col === col)) {
+      collision = true;
+      console.log("fish");
+    }
 
     return checkMoves;
   }
@@ -670,13 +908,13 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                     <div className="circle" style={{ backgroundColor: "red" }} />
                   )}
                   {isFigureAndSelected && (
-                    <div className="circle" style={{ backgroundColor: "green" }} />
+                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
                   )}
                   {isFigureAndSelected2 && (
-                    <div className="circle" style={{ backgroundColor: "green" }} />
+                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
                   )}
                   {isFigureAndSelected3 && (
-                    <div className="circle" style={{ backgroundColor: "green" }} />
+                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
                   )}
                   {isPossibleMoves && (
                     <div className="circle" style={{ backgroundColor: "gray", width: "40px", height: "40px"}} />
@@ -684,6 +922,11 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                 </div>
               );
             });
+            if(figurePositionsBlue.length === 8) {
+              window.alert("Blue Won!");
+            } else if(figurePositionsRed.length === 8) {
+              window.alert("Red Won!");
+            }
             return <div className="row" key={i+1}>{hexagons}</div>;
           })}
         </div>
