@@ -5,10 +5,10 @@ import "../App.css";
 interface HexBoardProps {}
 
 interface HexBoardState {
-  /* All Blue Figures on the Board */
-  figurePositionsBlue: Array<{ row: number, col: number }>;
-  /* All Red Figures on the Board */
-  figurePositionsRed: Array<{ row: number, col: number }>;
+  /* All First Player's Figures on the Board */
+  figurePositions1P: Array<{ row: number, col: number }>;
+  /* All Second Player's Figures on the Board */
+  figurePositions2P: Array<{ row: number, col: number }>;
   /* Up to three Selections of Figures a Player can make on the Board */
   selectedFigure: { row: number; col: number } | null;
   selectedFigure2: { row: number; col: number } | null;
@@ -18,7 +18,7 @@ interface HexBoardState {
 /* The actually Hexagon Board of the possible Hexagon Fields */
 const boardRows: number[] = [5, 6, 7, 8, 9, 8, 7, 6, 5];
 
-var turnBlue = true;
+var turn1P = true;
 
 var collision = false;
 
@@ -27,8 +27,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
   constructor(props: HexBoardProps) {
     super(props);
 
-    const figurePositionsBlue: {row: number, col: number}[] = [];
-    const figurePositionsRed: {row: number, col: number}[] = [];
+    const figurePositions1P: {row: number, col: number}[] = [];
+    const figurePositions2P: {row: number, col: number}[] = [];
 
     var col = 1;
     var max_col = 6;
@@ -37,10 +37,10 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     for (let row = 1; row < 10; row++) {
       while(col < max_col) {
         if((row === 8 && (4 <= col && col <= 9)) || (row === 9 && (5 <= col && col <= 9)) || (row === 7 && (5 <= col && col <= 7))) {
-          figurePositionsBlue.push({row: row, col: col});
+          figurePositions1P.push({row: row, col: col});
         }
         if((row === 1 && (1 <= col && col <= 5)) || (row === 2 && (1 <= col && col <= 6)) || (row === 3 && (3 <= col && col <= 5))) {
-          figurePositionsRed.push({row: row, col: col});
+          figurePositions2P.push({row: row, col: col});
         }
 
         col++;
@@ -52,8 +52,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
     /* Insert Figures to the correct Positions */
     this.state = {
-      figurePositionsBlue: figurePositionsBlue,
-      figurePositionsRed: figurePositionsRed,
+      figurePositions1P: figurePositions1P,
+      figurePositions2P: figurePositions2P,
       selectedFigure: null,
       selectedFigure2: null,
       selectedFigure3: null,
@@ -62,21 +62,21 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Click Events */
   handleHexClick = (row: number, col: number) => {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositions1P, figurePositions2P } = this.state;
 
     /* Verifies which Player is doing a Click Event */
-    if(turnBlue) {
-      this.clickEventsBothPlayers(row, col, figurePositionsBlue, figurePositionsRed);
-      console.log(figurePositionsBlue.length);
-      console.log(figurePositionsRed.length);
+    if(turn1P) {
+      this.clickEventsBothPlayers(row, col, figurePositions1P, figurePositions2P);
+      console.log(figurePositions1P.length);
+      console.log(figurePositions2P.length);
     } else {
-      this.clickEventsBothPlayers(row, col, figurePositionsRed, figurePositionsBlue);
-      console.log(figurePositionsBlue.length);
-      console.log(figurePositionsRed.length);
+      this.clickEventsBothPlayers(row, col, figurePositions2P, figurePositions1P);
+      console.log(figurePositions1P.length);
+      console.log(figurePositions2P.length);
     }
   };
 
-  /* All the Click Events depending on the situation (For TurnBlue and TurnRed) */
+  /* All the Click Events depending on the situation (For Turn1P and Turn2P) */
   clickEventsBothPlayers(row: number, col: number, figurePositions: Array<{ row: number, col: number }>, figurePositions2: Array<{ row: number, col: number }>) {
     const { selectedFigure, selectedFigure2, selectedFigure3 } = this.state;
 
@@ -127,7 +127,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Checks if the move with 3 Figures can be made, and fulfills it in case it works */
     if(selectedFigure && selectedFigure2 && selectedFigure3) {
       if(this.checkPossibleMovesThreeFigures(row, col, selectedFigure.row, selectedFigure.col, selectedFigure2.row, selectedFigure2.col, selectedFigure3.row, selectedFigure3.col)) {
-        /* New list of Blue and Red Figures' Positions */
+        /* New list of First Player and Second Player Figures' Positions */
         let newFigurePositions = figurePositions;
         let newFigurePositions2 = figurePositions2;
 
@@ -297,26 +297,26 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           }
         }
         
-        if(turnBlue) {
-          /* Next Turn: Red */
-          turnBlue = false;
+        if(turn1P) {
+          /* Next Turn: Second Player */
+          turn1P = false;
             
           /* Updates the state */
           this.setState({
-            figurePositionsBlue: newFigurePositions,
-            figurePositionsRed: newFigurePositions2,
+            figurePositions1P: newFigurePositions,
+            figurePositions2P: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
           });
         } else {
-          /* Next Turn: Blue */
-          turnBlue = true;
+          /* Next Turn: First Player */
+          turn1P = true;
         
           /* Updates the state */
           this.setState({
-            figurePositionsRed: newFigurePositions,
-            figurePositionsBlue: newFigurePositions2,
+            figurePositions2P: newFigurePositions,
+            figurePositions1P: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -328,7 +328,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Checks if the move with 2 Figure can be made, and fulfills it in case it works */
     } else if(selectedFigure && selectedFigure2) {
       if(this.checkPossibleMovesTwoFigures(row, col, selectedFigure.row, selectedFigure.col, selectedFigure2.row, selectedFigure2.col)) {
-        /* New list of Blue and Red Figures' Positions */
+        /* New list of First Player and Second Player Figures' Positions */
         let newFigurePositions = figurePositions;
         let newFigurePositions2 = figurePositions2;
 
@@ -422,26 +422,22 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
           }
         }
         
-        if(turnBlue) {
-          /* Next Turn: Red */
-          turnBlue = false;
+        if(turn1P) {
+          turn1P = false;
             
-          /* Updates the state */
           this.setState({
-            figurePositionsBlue: newFigurePositions,
-            figurePositionsRed: newFigurePositions2,
+            figurePositions1P: newFigurePositions,
+            figurePositions2P: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
           });
         } else {
-          /* Next Turn: Blue */
-          turnBlue = true;
+          turn1P = true;
         
-          /* Updates the state */
           this.setState({
-            figurePositionsRed: newFigurePositions,
-            figurePositionsBlue: newFigurePositions2,
+            figurePositions2P: newFigurePositions,
+            figurePositions1P: newFigurePositions2,
             selectedFigure: null,
             selectedFigure2: null,
             selectedFigure3: null,
@@ -453,7 +449,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       }
     /* Checks if the move with 1 Figure can be made, and fulfills it in case it works */
     } else if(selectedFigure && this.checkPossibleMoves(row, col, selectedFigure.row, selectedFigure.col)) {
-      /* New list of Blue and Red Figures' Positions */
+      /* New list of First Player and Second Player Figures' Positions */
       let newFigurePositions = figurePositions;
 
       /* Remove all Figures, which matches with the selected ones */
@@ -462,24 +458,20 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       /* Add the Figure to the clicked Position */
       newFigurePositions.push({ row: row, col: col });
 
-      if(turnBlue) {
-        /* Next Turn: Red */
-        turnBlue = false;
+      if(turn1P) {
+        turn1P = false;
           
-        /* Updates the state */
         this.setState({
-          figurePositionsBlue: newFigurePositions,
+          figurePositions1P: newFigurePositions,
           selectedFigure: null,
           selectedFigure2: null,
           selectedFigure3: null,
         });
       } else {
-        /* Next Turn: Blue */
-        turnBlue = true;
+        turn1P = true;
       
-        /* Updates the state */
         this.setState({
-          figurePositionsRed: newFigurePositions,
+          figurePositions2P: newFigurePositions,
           selectedFigure: null,
           selectedFigure2: null,
           selectedFigure3: null,
@@ -612,12 +604,12 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Returns a list of all the possible moves that a single Figure can do */
   calculatePossibleMoves(row: number, col: number, sRow: number, sCol: number): {row: number, col: number}[] {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositions1P, figurePositions2P } = this.state;
     const possibleMoves: {row: number, col: number}[] = [];
 
-    /* Checks if the clicked Position is the same as the Position of a Red or Blue Figure */
-    const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
-    const isFigureAndRed = figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+    /* Checks if the clicked Position is the same as the Position of a First Player or Second Player Figure */
+    const isFigureAnd1P = figurePositions1P.some(pos => pos.row === row && pos.col === col);
+    const isFigureAnd2P = figurePositions2P.some(pos => pos.row === row && pos.col === col);
 
     /* Goes through all the Hexagon Fields and checks where the selectedFigure could move to with the isAdjacent function */
     for (let i = 1; i < boardRows.length+1; i++) {
@@ -627,7 +619,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
         if(i > 5) {
           adjustedJ = j+(i-5);
         }
-        if (this.isAdjacent(sRow, sCol, i, adjustedJ) && !isFigureAndBlue && !isFigureAndRed) {
+        if (this.isAdjacent(sRow, sCol, i, adjustedJ) && !isFigureAnd1P && !isFigureAnd2P) {
           possibleMoves.push({ row: i, col: adjustedJ });
         }
       }
@@ -638,23 +630,23 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Checks if the given Position with the parameters is a Figure */
   isFigure(row: number, col: number): boolean {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
-    const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
-    const isFigureAndRed = figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+    const { figurePositions1P, figurePositions2P } = this.state;
+    const isFigureAnd1P = figurePositions1P.some(pos => pos.row === row && pos.col === col);
+    const isFigureAnd2P = figurePositions2P.some(pos => pos.row === row && pos.col === col);
     
-    return isFigureAndBlue || isFigureAndRed;
+    return isFigureAnd1P || isFigureAnd2P;
   }
 
   /* Checks if a Collision between different colored Figures has happened */
   isCollision(row: number, col: number): boolean {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositions1P, figurePositions2P } = this.state;
     
     var isCollision;
 
-    if(turnBlue) {
-      isCollision = figurePositionsBlue.some(pos => pos.row === row && pos.col === col);
+    if(turn1P) {
+      isCollision = figurePositions1P.some(pos => pos.row === row && pos.col === col);
     } else {
-      isCollision = figurePositionsRed.some(pos => pos.row === row && pos.col === col);
+      isCollision = figurePositions2P.some(pos => pos.row === row && pos.col === col);
     }
 
     return isCollision;
@@ -844,7 +836,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Returns a true false if possible moves are available for a specific case (For moving 2 Figures) */
   checkPossibleMovesTwoFigures(row: number, col: number, sRow: number, sCol: number, sRow2: number, sCol2: number) {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositions1P, figurePositions2P } = this.state;
     var possibleMoves: {row: number, col: number}[] = [];
     var checkMoves = false;
 
@@ -853,7 +845,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Checks if the clicked Position is equal to the possibleMoves Position */
     checkMoves = possibleMoves.some(pos => pos.row === row && pos.col === col);
 
-    if(figurePositionsBlue.some(pos => pos.row === row && pos.col === col) || figurePositionsRed.some(pos => pos.row === row && pos.col === col)) {
+    if(figurePositions1P.some(pos => pos.row === row && pos.col === col) || figurePositions2P.some(pos => pos.row === row && pos.col === col)) {
       collision = true;
       console.log("fish");
     }
@@ -863,7 +855,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Returns a true false if possible moves are available for a specific case (For moving 3 Figures) */
   checkPossibleMovesThreeFigures(row: number, col: number, sRow: number, sCol: number, sRow2: number, sCol2: number, sRow3: number, sCol3: number) {
-    const { figurePositionsBlue, figurePositionsRed } = this.state;
+    const { figurePositions1P, figurePositions2P } = this.state;
     var possibleMoves: {row: number, col: number}[] = [];
     var checkMoves = false;
 
@@ -872,7 +864,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Checks if the clicked Position is equal to the possibleMoves Position */
     checkMoves = possibleMoves.some(pos => pos.row === row && pos.col === col);
 
-    if(figurePositionsBlue.some(pos => pos.row === row && pos.col === col) || figurePositionsRed.some(pos => pos.row === row && pos.col === col)) {
+    if(figurePositions1P.some(pos => pos.row === row && pos.col === col) || figurePositions2P.some(pos => pos.row === row && pos.col === col)) {
       collision = true;
       console.log("fish");
     }
@@ -882,24 +874,24 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Updates the visualization of the current state of the webpage */
   render() {
-    const { figurePositionsBlue, figurePositionsRed, selectedFigure, selectedFigure2, selectedFigure3 } = this.state;
+    const { figurePositions1P, figurePositions2P, selectedFigure, selectedFigure2, selectedFigure3 } = this.state;
     return (
       <div className="hexboard-container">
         <div className="hexboard">
 
         <div className="circle_score" style={{ backgroundColor: "blue", marginTop: "-20px" }} />
-          <span className="circle_number" style={{ color: "blue", marginTop: "-22px" }} >{14-figurePositionsBlue.length}</span>
+          <span className="circle_number" style={{ color: "blue", marginTop: "-22px" }} >{14-figurePositions1P.length}</span>
         
         <div className="circle_score" style={{ backgroundColor: "red", marginTop: "40px" }} />
-          <span className="circle_number" style={{ color: "red", marginTop: "37px" }} >{14-figurePositionsRed.length}</span>
+          <span className="circle_number" style={{ color: "red", marginTop: "37px" }} >{14-figurePositions2P.length}</span>
           
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
 
-              if(figurePositionsBlue.length === 8) {
-                window.alert("Red Won!");
-              } else if(figurePositionsRed.length === 8) {
-                window.alert("Blue Won!");
+              if(figurePositions1P.length === 8) {
+                window.alert("Second Player Won!");
+              } else if(figurePositions2P.length === 8) {
+                window.alert("First Player Won!");
               }
 
               /* Guarantees that the Positions of each Hexagon Field is convenient to work with it */
@@ -922,8 +914,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               }
 
               /* Checks the Position of each element */
-              const isFigureAndBlue = figurePositionsBlue.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
-              const isFigureAndRed = figurePositionsRed.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
+              const isFigureAnd1P = figurePositions1P.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
+              const isFigureAnd2P = figurePositions2P.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
               const isFigureAndSelected = selectedFigure?.row === adjustedI && selectedFigure?.col === adjustedJ;
               const isFigureAndSelected2 = selectedFigure2?.row === adjustedI && selectedFigure2?.col === adjustedJ;
               const isFigureAndSelected3 = selectedFigure3?.row === adjustedI && selectedFigure3?.col === adjustedJ;
@@ -931,29 +923,25 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
               /* Visualization */
               return (
-                <div
-                  key={`${adjustedI}-${adjustedJ}`}
-                  className="hexagon-wrapper"
-                  onClick={() => this.handleHexClick(adjustedI, adjustedJ)}
-                >
+                <div key={`${adjustedI}-${adjustedJ}`} className="hexagon-wrapper">
                   <HexagonIcon className="hexagon" style={{ fontSize: "120px", color: "#F58900" }} />
-                  {isFigureAndBlue && (
-                    <div className="circle" style={{ backgroundColor: "blue" }} />
+                  {isFigureAnd1P && (
+                    <div className="circle" style={{ backgroundColor: "blue" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
-                  {isFigureAndRed && (
-                    <div className="circle" style={{ backgroundColor: "red" }} />
+                  {isFigureAnd2P && (
+                    <div className="circle" style={{ backgroundColor: "red" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAndSelected && (
-                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
+                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAndSelected2 && (
-                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
+                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAndSelected3 && (
-                    <div className="circle" style={{ backgroundColor: "green", width: "40px", height: "40px"}} />
+                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isPossibleMoves && (
-                    <div className="circle" style={{ backgroundColor: "gray", width: "40px", height: "40px"}} />
+                    <div className="small_circle" style={{ backgroundColor: "gray", width: "60px", height: "60px" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                 </div>
               );
