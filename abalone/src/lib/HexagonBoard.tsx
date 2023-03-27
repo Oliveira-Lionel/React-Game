@@ -886,8 +886,21 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     return (
       <div className="hexboard-container">
         <div className="hexboard">
+
+        <div className="circle_score" style={{ backgroundColor: "blue", marginTop: "-20px" }} />
+          <span className="circle_number" style={{ color: "blue", marginTop: "-22px" }} >{14-figurePositionsBlue.length}</span>
+        
+        <div className="circle_score" style={{ backgroundColor: "red", marginTop: "40px" }} />
+          <span className="circle_number" style={{ color: "red", marginTop: "37px" }} >{14-figurePositionsRed.length}</span>
+          
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
+
+              if(figurePositionsBlue.length === 8) {
+                window.alert("Red Won!");
+              } else if(figurePositionsRed.length === 8) {
+                window.alert("Blue Won!");
+              }
 
               /* Guarantees that the Positions of each Hexagon Field is convenient to work with it */
               let adjustedI = i+1;
@@ -945,11 +958,6 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                 </div>
               );
             });
-            if(figurePositionsBlue.length === 8) {
-              window.alert("Red Won!");
-            } else if(figurePositionsRed.length === 8) {
-              window.alert("Blue Won!");
-            }
             return <div className="row" key={i+1}>{hexagons}</div>;
           })}
         </div>

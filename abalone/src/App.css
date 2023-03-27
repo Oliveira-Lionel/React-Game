@@ -41,6 +41,23 @@
   height: 50px;
 }
 
+.circle_score {
+  z-index: 1;
+  margin-left: -30px;
+  position: absolute;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.circle_number {
+  z-index: 2;
+  position: absolute;
+  color: black;
+  font-size: 42px;
+  margin-left: 35px;
+}
+
 .title {
   color: #F58900;
   display: flex;
