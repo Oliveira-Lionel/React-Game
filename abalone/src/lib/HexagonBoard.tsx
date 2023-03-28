@@ -1,5 +1,5 @@
 import HexagonIcon from '@mui/icons-material/Hexagon';
-import React from "react";
+import React from 'react';
 import "../App.css";
 
 interface HexBoardProps {}
@@ -13,6 +13,8 @@ interface HexBoardState {
   selectedFigure: { row: number; col: number } | null;
   selectedFigure2: { row: number; col: number } | null;
   selectedFigure3: { row: number; col: number } | null;
+  /* Hovering with the mouse */
+  isHovered: boolean;
 }
 
 /* The actually Hexagon Board of the possible Hexagon Fields */
@@ -57,6 +59,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       selectedFigure: null,
       selectedFigure2: null,
       selectedFigure3: null,
+      isHovered: false,
     };
   }
 
@@ -74,6 +77,11 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       console.log(figurePositions1P.length);
       console.log(figurePositions2P.length);
     }
+  };
+
+  /* Hover Event */
+  handleHexHover = (hovered: boolean) => {
+    this.setState({ isHovered: hovered });
   };
 
   /* All the Click Events depending on the situation (For Turn1P and Turn2P) */
@@ -866,7 +874,6 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
     if(figurePositions1P.some(pos => pos.row === row && pos.col === col) || figurePositions2P.some(pos => pos.row === row && pos.col === col)) {
       collision = true;
-      console.log("fish");
     }
 
     return checkMoves;
@@ -876,15 +883,19 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
   render() {
     const { figurePositions1P, figurePositions2P, selectedFigure, selectedFigure2, selectedFigure3 } = this.state;
     return (
-      <div className="hexboard-container">
+      <div className="hexboard_container">
         <div className="hexboard">
-
-        <div className="circle_score" style={{ backgroundColor: "blue", marginTop: "-20px" }} />
-          <span className="circle_number" style={{ color: "blue", marginTop: "-22px" }} >{14-figurePositions1P.length}</span>
+          <div className="score_container" >
+            <div className="side_by_side">
+              <div className="circle_score" style={{ backgroundColor: "white"}} />
+              <span className="circle_number" style={{ color: "white", marginLeft: "10px"}} >{14-figurePositions1P.length}</span>
+            </div>
+            <div className="side_by_side" style={{ marginTop: "5px" }} >
+              <div className="circle_score" style={{ backgroundColor: "black"}} />
+              <span className="circle_number" style={{ color: "black", marginLeft: "10px" }} >{14-figurePositions2P.length}</span>
+            </div>
+          </div>
         
-        <div className="circle_score" style={{ backgroundColor: "red", marginTop: "40px" }} />
-          <span className="circle_number" style={{ color: "red", marginTop: "37px" }} >{14-figurePositions2P.length}</span>
-          
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
 
@@ -922,26 +933,33 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               const isPossibleMoves = possibleMoves.some(pos => pos.row === adjustedI && pos.col === adjustedJ);
 
               /* Visualization */
+              var movesColor;
+              if(turn1P) {
+                movesColor = "rgba(255, 255, 255, 0.5)";
+              } else {
+                movesColor = "rgba(0, 0, 0, 0.5)";
+              }
+
               return (
-                <div key={`${adjustedI}-${adjustedJ}`} className="hexagon-wrapper">
-                  <HexagonIcon className="hexagon" style={{ fontSize: "120px", color: "#F58900" }} />
+                <div key={`${adjustedI}-${adjustedJ}`} className="hexagon_wrapper" >
+                  <HexagonIcon className="hexagon" style={{ fontSize: "120px" }} />
                   {isFigureAnd1P && (
-                    <div className="circle" style={{ backgroundColor: "blue" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className={`circle1P ${turn1P ? "turn1P_circle" : ""}`} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAnd2P && (
-                    <div className="circle" style={{ backgroundColor: "red" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className={`circle2P ${turn1P ? "" : "turn2P_circle"}`} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAndSelected && (
-                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none" }} />
                   )}
                   {isFigureAndSelected2 && (
-                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none" }} />
                   )}
                   {isFigureAndSelected3 && (
-                    <div className="small_circle" style={{ backgroundColor: "green" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none"  }} />
                   )}
                   {isPossibleMoves && (
-                    <div className="small_circle" style={{ backgroundColor: "gray", width: "60px", height: "60px" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
+                    <div className={`small_circle ${turn1P ? "turn1P_sCircle" : "turn2P_sCircle"}`} style={{ backgroundColor: `${movesColor}`, width: "50px", height: "50px" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                 </div>
               );

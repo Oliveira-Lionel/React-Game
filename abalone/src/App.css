@@ -5,14 +5,20 @@
   height: 100vh;
 }
 
-.hexboard-container {
-  min-width: 940px;
+.hexboard_container {
+  min-width: 900px;
   min-height: 800px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  background-color: #EBE79B;
+  box-shadow: 0px 0px 20px black;
+  background-color: rgb(199, 192, 192);
+}
+
+.hexboard {
+  margin-left: 3px;
+  margin-top: 10px;
 }
 
 .row {
@@ -21,7 +27,7 @@
   align-items: center;
 }
 
-.hexagon-wrapper {
+.hexagon_wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,12 +39,40 @@
   margin-top: -8px;
 }
 
-.circle {
+.circle1P {
   z-index: 1;
   position: absolute;
   border-radius: 50%;
   width: 70px;
   height: 70px;
+  background-color: white;
+}
+
+.circle2P {
+  z-index: 1;
+  position: absolute;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  background-color: black;
+}
+
+.turn1P_circle:hover {
+  background-color: rgb(230, 230, 230);
+  box-shadow: 0px 0px 10px black;
+}
+
+.turn2P_circle:hover {
+  background-color: rgb(25, 25, 25);
+  box-shadow: 0px 0px 10px black;
+}
+
+.turn1P_sCircle:hover {
+  box-shadow: 0px 0px 10px white;
+}
+
+.turn2P_sCircle:hover {
+  box-shadow: 0px 0px 10px black;
 }
 
 .small_circle {
@@ -49,33 +83,37 @@
   height: 50px;
 }
 
-.circle_score {
-  z-index: 1;
-  margin-left: -30px;
+.score_container {
   position: absolute;
+  margin-top: -16px;
+}
+
+.side_by_side {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle_score {
   border-radius: 50%;
   width: 50px;
   height: 50px;
 }
 
 .circle_number {
-  z-index: 2;
-  position: absolute;
-  color: black;
   font-size: 42px;
-  margin-left: 35px;
 }
 
 .title {
-  color: #F58900;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2.5em;;
+  font-size: 2.5em;
 }
 
 .hexagon {
   transform: rotate(30deg);
+  color: rgb(139, 135, 135);
   display: flex;
   position: relative;
 }
@@ -85,5 +123,5 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #000000;
+  background-color: rgb(173, 169, 169);
 }
