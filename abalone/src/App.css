@@ -58,29 +58,30 @@
 }
 
 .turn1P_circle:hover {
-  background-color: rgb(230, 230, 230);
-  box-shadow: 0px 0px 10px black;
+  background-color: rgb(245, 245, 245);
+  box-shadow: 0px 0px 10px rgb(48, 79, 216);
 }
 
 .turn2P_circle:hover {
-  background-color: rgb(25, 25, 25);
-  box-shadow: 0px 0px 10px black;
+  background-color: rgb(10, 10, 10);
+  box-shadow: 0px 0px 10px rgb(48, 79, 216);
 }
 
 .turn1P_sCircle:hover {
-  box-shadow: 0px 0px 10px white;
+  box-shadow: 0px 0px 10px rgb(48, 79, 216);
 }
 
 .turn2P_sCircle:hover {
-  box-shadow: 0px 0px 10px black;
+  box-shadow: 0px 0px 10px rgb(48, 79, 216);
 }
 
 .small_circle {
   z-index: 1;
   position: absolute;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
+  background-color: rgba(48, 79, 216, 0.35);
 }
 
 .score_container {

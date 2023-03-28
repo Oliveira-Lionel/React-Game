@@ -70,12 +70,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     /* Verifies which Player is doing a Click Event */
     if(turn1P) {
       this.clickEventsBothPlayers(row, col, figurePositions1P, figurePositions2P);
-      console.log(figurePositions1P.length);
-      console.log(figurePositions2P.length);
     } else {
       this.clickEventsBothPlayers(row, col, figurePositions2P, figurePositions1P);
-      console.log(figurePositions1P.length);
-      console.log(figurePositions2P.length);
     }
   };
 
@@ -855,7 +851,6 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
     if(figurePositions1P.some(pos => pos.row === row && pos.col === col) || figurePositions2P.some(pos => pos.row === row && pos.col === col)) {
       collision = true;
-      console.log("fish");
     }
 
     return checkMoves;
@@ -885,7 +880,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
     return (
       <div className="hexboard_container">
         <div className="hexboard">
-          <div className="score_container" >
+          <div className="score_container">
             <div className="side_by_side">
               <div className="circle_score" style={{ backgroundColor: "white"}} />
               <span className="circle_number" style={{ color: "white", marginLeft: "10px"}} >{14-figurePositions1P.length}</span>
@@ -895,6 +890,9 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               <span className="circle_number" style={{ color: "black", marginLeft: "10px" }} >{14-figurePositions2P.length}</span>
             </div>
           </div>
+          <div className="timer1P"></div>
+          <div className="timer2P"></div>
+          <div className="menu_button"></div>
         
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {
@@ -950,13 +948,13 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
                     <div className={`circle2P ${turn1P ? "" : "turn2P_circle"}`} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
                   )}
                   {isFigureAndSelected && (
-                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none" }} />
+                    <div className="small_circle" style={{ pointerEvents: "none" }} />
                   )}
                   {isFigureAndSelected2 && (
-                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none" }} />
+                    <div className="small_circle" style={{ pointerEvents: "none" }} />
                   )}
                   {isFigureAndSelected3 && (
-                    <div className="small_circle" style={{ backgroundColor: "rgba(0, 114, 0, 0.5)", pointerEvents: "none"  }} />
+                    <div className="small_circle" style={{ pointerEvents: "none"  }} />
                   )}
                   {isPossibleMoves && (
                     <div className={`small_circle ${turn1P ? "turn1P_sCircle" : "turn2P_sCircle"}`} style={{ backgroundColor: `${movesColor}`, width: "50px", height: "50px" }} onClick={() => this.handleHexClick(adjustedI, adjustedJ)} />
