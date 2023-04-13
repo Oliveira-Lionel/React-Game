@@ -17,8 +17,8 @@ interface HexBoardState {
   selectedFigure3: { row: number; col: number } | null;
   /* Hovering with the mouse */
   isHovered: boolean;
-  timer1P: String;
-  timer2P: String;
+  /*timer1P: String;
+  timer2P: String;*/
 }
 
 /* The actually Hexagon Board of the possible Hexagon Fields */
@@ -26,33 +26,6 @@ const boardRows: number[] = [5, 6, 7, 8, 9, 8, 7, 6, 5];
 
 var turn1P = true;
 var collision = false;
-/*var timer1P: String;
-var timer2P = 0;
-let startTime: number;
-let timerInterval: any;*/
-
-/*function start() {
-  startTime = Date.now();
-  timerInterval = setInterval(() => {
-    timer1P = Date.now() - startTime;
-    console.log(`Elapsed Time: ${timer1P}`);
-  }, 1000);
-}*/
-
-/*function timer() {
-  let totalSeconds = 0;
-  let minutes = 0;
-  let seconds = 0;
-
-  const interval = setInterval(() => {
-    totalSeconds++;
-    minutes = Math.floor(totalSeconds / 60);
-    seconds = totalSeconds % 60;
-    console.log(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-  }, 1000);
-
-  timer1P = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}*/
 
 class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
   /* Constructor, which places the initial Figures in their correct Position */
@@ -82,9 +55,6 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       col = 0;
     }
 
-    //start();
-    //timer();
-
     /* Insert Figures to the correct Positions */
     this.state = {
       figurePositions1P: figurePositions1P,
@@ -93,8 +63,8 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
       selectedFigure2: null,
       selectedFigure3: null,
       isHovered: false,
-      timer1P: "00:00",
-      timer2P: "00:00",
+      /*timer1P: "00:00",
+      timer2P: "00:00",*/
     };
   }
 
@@ -911,7 +881,7 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
 
   /* Updates the visualization of the current state of the webpage */
   render() {
-    const { figurePositions1P, figurePositions2P, selectedFigure, selectedFigure2, selectedFigure3, timer1P, timer2P } = this.state;
+    const { figurePositions1P, figurePositions2P, selectedFigure, selectedFigure2, selectedFigure3/*, timer1P, timer2P*/ } = this.state;
     return (
       <div className="hexboard_container">
         <div className="hexboard">
@@ -925,9 +895,9 @@ class HexBoard extends React.Component<HexBoardProps, HexBoardState> {
               <span className="circle_number" style={{ color: "white", marginLeft: "20px"}} >{figurePositions1P.length-8}</span>
             </div>
           </div>
-          <div className="timer1P">{timer1P}</div>
+          {/*<div className="timer1P">{timer1P}</div>
           <div className="timer2P">{timer2P}</div>
-          <div className="menu_button"></div>
+          <div className="menu_button"></div>*/}
         
           {boardRows.map((numHexagons, i) => {
             const hexagons = Array.from({ length: numHexagons }, (_, j) => {

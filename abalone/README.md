@@ -1,3 +1,17 @@
+# Abalone Board Game
+
+This project is a board game called Abalone. I created the code for it in my free time as a hobby and personal challenge. I used React and the programming languages CSS, HTML and TypeScript to create this project to familiarise myself with React and the languages.
+
+Abalone is a game where 2 players play against each other. Each of them has 14 marbles, which they can move on the board either alone or with 2-3 marbles at the same time in the same direction with empty spaces. If one moves 2(-3) marbles in the direction of the opponent's marble(s) (while the opponent has fewer marbles than the moved marbles and either an empty square or the end of the game field is behind the opponent's marble), the opponent's marbles are also moved in the same direction.
+The goal is to move 6 of the opponent's marbles out of the playing field to win the game.
+
+My project is not accessible online, but can be played locally by downloading the code and looking at the "Getting Started" section below.
+If you want to play it online on an official website (developed by Board Game Arena), you should visit this website:
+https://en.boardgamearena.com/gamepanel?game=abalone
+
+The publisher of the official game is Asmodee:
+https://corporate.asmodee.com/
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
