@@ -4,8 +4,8 @@ This project is a board game called Abalone. I created the code for it in my fre
 
 Abalone is a turn-based game in which 2 players compete against each other.
 Each of them has 14 marbles that they can move on the board.
-They are moved either alone or with a total of 3 marbles at the same time to the same direction with empty space(s).
-Additionally, a player can move the opponent's marble(s) by collapsing them in a straight line with more marbles than the opponent's marble(s) while there is an empty square or the end of the board behind the opponent's marble. Then all these marbles are moved in the same direction.
+They are moved either alone or with up to 3 marbles at the same time to the same direction with empty hexagon(s).
+Additionally, a player can move the opponent's marble(s) by collapsing them in a straight line with more marbles than the opponent's marble(s) while there is an empty hexagon or the end of the board behind the opponent's marble. Then all these marbles are moved in the same direction.
 The goal is to move 6 of the opponent's marbles out of the board to win the game.
 
 My project is not accessible online, but can be played locally by downloading the code and looking at the "Getting Started" section below.
